@@ -1,0 +1,14 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      // Astro sert sur 4321, pas sur le port 3000 pris par défaut.
+      // `--host` expose le serveur au-delà du loopback, nécessaire quand la
+      // session tourne dans un conteneur distant.
+      "name": "labo",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--host"],
+      "port": 4321
+    }
+  ]
+}
