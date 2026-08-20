@@ -1,0 +1,69 @@
+---
+import Base from "../layouts/Base.astro";
+import ToolCard from "../components/ToolCard.astro";
+import { Asterisk, Dots, DShapes, Gear } from "../components/glyphs.jsx";
+import { CATEGORIES } from "../data/site.js";
+
+export function getStaticPaths() {
+  return CATEGORIES.map((category) => ({
+    params: { category: category.slug },
+    props: { category },
+  }));
+}
+
+const { category } = Astro.props;
+const { label, intro, accent, glyph, tools } = category;
+
+const GLYPHS = { asterisk: Asterisk, dots: Dots, dshapes: DShapes, gear: Gear };
+const Glyph = GLYPHS[glyph];
+
+const count = tools.length;
+---
+
+<Base title={label} description={intro}>
+  {/* Le bandeau reprend la couleur de la tuile cliquée : la page prolonge
+      visuellement la case du sommaire d'où l'on vient. */}
+  <header class={`page-head page-head-${accent}`}>
+    <div class="page-head-inner">
+      <p class="page-eyebrow">Catégorie</p>
+      <h1 class="page-title">{label}</h1>
+      <p class="page-intro">{intro}</p>
+
+      <div class="page-glyph" aria-hidden="true">
+        {Glyph ? <Glyph /> : <span class="page-specimen">Aa</span>}
+      </div>
+    </div>
+  </header>
+
+  <div class="page-body">
+    <div class="page-body-inner">
+      <h2 class="tools-heading">
+        {count > 0
+          ? `${count} outil${count > 1 ? "s" : ""}`
+          : "Aucun outil pour l'instant"}
+      </h2>
+
+      {
+        count > 0 ? (
+          <ul class="tools">
+            {tools.map((tool) => <ToolCard tool={tool} />)}
+          </ul>
+        ) : (
+          <div class="empty">
+            <p>
+              Cette page attend son contenu. Les fiches se déclarent dans
+              <code>src/data/site.js</code>, dans le tableau <code>tools</code>
+              de la catégorie « {label} ».
+            </p>
+            <p class="empty-hint">
+              Une fiche demande quatre champs : <code>name</code>,
+              <code>url</code>, <code>summary</code> et <code>tags</code>.
+            </p>
+          </div>
+        )
+      }
+
+      <p class="page-back"><a href="/">← Toutes les catégories</a></p>
+    </div>
+  </div>
+</Base>

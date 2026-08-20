@@ -1,0 +1,11 @@
+---
+import Base from "../layouts/Base.astro";
+import Hero from "../components/Hero.jsx";
+import BentoGrid from "../components/BentoGrid.jsx";
+---
+
+{/* `bare` : l'en-tête reste effacé tant que le hero tient l'écran. */}
+<Base bare={true}>
+  <Hero client:load />
+  <BentoGrid client:visible />
+</Base>

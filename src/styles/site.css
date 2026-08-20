@@ -1,0 +1,742 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --blue: #0d24fb;
+  --ink: #15171c;
+  --paper: #ffffff;
+  --line: #c3cdea;
+
+  /* Paires fond/texte des tuiles (contraste ≥ 4.5:1) */
+  --logo-bg: #fce38a;
+  --logo-fg: #6b4c00;
+  --typo-bg: #fa8c82;
+  --typo-fg: #8e1500;
+  --color-bg: #b79cf9;
+  --color-fg: #3f0ac8;
+  --inspi-bg: #7ffbe9;
+  --inspi-fg: #0b5f57;
+  --icono-bg: #acfa8c;
+  --icono-fg: #1c6330;
+  --neutral-bg: #ececec;
+
+  --header-pad: 20px;
+  --header-avatar: 44px;
+  --header-h: calc(var(--header-pad) * 2 + var(--header-avatar));
+
+  --font-display: "Inter Tight Variable", "Inter Tight", "Helvetica Neue", Arial, sans-serif;
+  --font-label: "Bricolage Grotesque Variable", "Bricolage Grotesque", var(--font-display);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-display);
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Hero ---------- */
+
+.hero {
+  position: relative;
+  min-height: 100svh;
+}
+
+.hero-lines {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.line {
+  position: absolute;
+  display: block;
+  background: var(--line);
+}
+
+.hero-frame {
+  position: absolute;
+  inset: 8% 14%;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(20px, 4.5vw, 70px) clamp(16px, 3vw, 56px);
+}
+
+/* Réserve la place de l'avatar : l'élément visible est en position fixed. */
+.hero-avatar-anchor {
+  width: clamp(64px, 7vw, 96px);
+  aspect-ratio: 1;
+  flex: none;
+}
+
+/* Le titre occupe le centre du cadre. */
+.hero-title-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  will-change: transform, opacity;
+}
+
+.hero-title {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(0.9rem, 2.2vw, 1.9rem);
+  font-weight: 800;
+  text-wrap: balance;
+}
+
+.hero-lead {
+  display: block;
+  color: var(--blue);
+  /* Kerning serré + interlignage resserré : rendu « brand design ». */
+  letter-spacing: -0.038em;
+  line-height: 0.92;
+  font-size: clamp(2rem, 7vw, 5.25rem);
+}
+
+.hero-body {
+  display: block;
+  max-width: 32ch;
+  color: var(--ink);
+  font-weight: 500;
+  letter-spacing: -0.018em;
+  line-height: 1.18;
+  font-size: clamp(1rem, 2vw, 1.6rem);
+}
+
+/* Chaque mot est animé séparément (stagger). */
+.hero-word {
+  display: inline-block;
+  margin-right: 0.24em;
+  will-change: transform, opacity;
+}
+
+/* Pastille circulaire : glisse de la grille vers le haut de page au scroll. */
+.hero-avatar {
+  position: fixed;
+  z-index: 30;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.hero-avatar-media {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--neutral-bg);
+  /* Filet de contour + halo blanc : invisible sur le fond clair du hero,
+     il détache la pastille une fois calée au-dessus des tuiles colorées. */
+  box-shadow:
+    0 0 0 1px var(--line),
+    0 0 0 5px var(--paper);
+}
+
+.hero-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Indicateur de scroll, disparaît au premier défilement. */
+.hero-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  align-self: center;
+  color: var(--ink);
+  font-family: var(--font-label);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.hero-hint-arrow {
+  width: 12px;
+  height: 20px;
+  display: block;
+}
+
+/* ---------- Bento grid ---------- */
+
+.bento {
+  min-height: 100svh;
+  padding: clamp(14px, 2vw, 28px);
+  padding-top: calc(var(--header-h) + clamp(14px, 2vw, 28px));
+  display: grid;
+  gap: clamp(14px, 1.7vw, 26px);
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  grid-template-areas:
+    "logo typo typo color"
+    "logo inspi avatar color"
+    "logo inspi icono icono";
+}
+
+.tile {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(18px, 2vw, 30px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+a.tile:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: -6px;
+}
+
+.tile-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.tile h2 {
+  font-family: var(--font-label);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-size: clamp(1.5rem, 2.3vw, 2.35rem);
+}
+
+.tile-count {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.62;
+}
+
+.tile .glyph {
+  align-self: flex-start;
+}
+
+.tile .glyph svg {
+  display: block;
+  height: auto;
+}
+
+.tile-logo {
+  grid-area: logo;
+  background: var(--logo-bg);
+  color: var(--logo-fg);
+}
+.tile-logo .glyph svg {
+  width: clamp(110px, 12.5vw, 195px);
+}
+
+.tile-typo {
+  grid-area: typo;
+  background: var(--typo-bg);
+  color: var(--typo-fg);
+  justify-content: flex-start;
+  gap: 0.9rem;
+}
+.specimen {
+  display: block;
+  font-family: var(--font-label);
+  font-weight: 800;
+  line-height: 1;
+  font-size: clamp(3rem, 5.8vw, 5.4rem);
+}
+
+.tile-color {
+  grid-area: color;
+  background: var(--color-bg);
+  color: var(--color-fg);
+}
+.tile-color .glyph {
+  align-self: center;
+  margin-bottom: clamp(10px, 12%, 90px);
+}
+.tile-color .glyph svg {
+  width: clamp(105px, 11.5vw, 180px);
+}
+
+.tile-inspi {
+  grid-area: inspi;
+  background: var(--inspi-bg);
+  color: var(--inspi-fg);
+}
+.tile-inspi .glyph svg {
+  width: clamp(115px, 13vw, 205px);
+}
+
+.tile-avatar {
+  grid-area: avatar;
+  background: var(--neutral-bg);
+  justify-content: center;
+  align-items: center;
+}
+.tile-avatar .glyph {
+  align-self: center;
+  width: clamp(100px, 9.5vw, 145px);
+}
+
+.tile-icono {
+  grid-area: icono;
+  background: var(--icono-bg);
+  color: var(--icono-fg);
+}
+.tile-icono .glyph svg {
+  width: clamp(72px, 7.5vw, 116px);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 960px) {
+  .bento {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: repeat(5, minmax(175px, auto));
+    grid-template-areas:
+      "logo typo"
+      "logo color"
+      "inspi color"
+      "inspi avatar"
+      "icono icono";
+  }
+}
+
+@media (max-width: 1028px) {
+  /* Aligné sur le seuil du hero (avatar au repos <= 72px) pour que la
+     trajectoire de l'avatar tombe pile dans son emplacement. */
+  :root {
+    --header-pad: 14px;
+    --header-avatar: 34px;
+  }
+}
+
+@media (max-width: 600px) {
+  .hero-frame {
+    inset: 8% 10%;
+  }
+
+  .hero-body {
+    max-width: none;
+  }
+
+  .bento {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    grid-auto-rows: minmax(210px, auto);
+    grid-template-areas:
+      "logo"
+      "typo"
+      "color"
+      "inspi"
+      "avatar"
+      "icono";
+  }
+}
+
+
+/* ---------- Chrome du site ---------- */
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  z-index: 100;
+  padding: 0.7rem 1.1rem;
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  left: 12px;
+  top: 12px;
+}
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(12px, 3vw, 40px);
+  padding: var(--header-pad);
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+}
+
+/* Accueil : la barre reste effacée tant que le hero tient l'écran. */
+.site-header.is-bare {
+  position: fixed;
+  inset: 0 0 auto 0;
+  border-bottom-color: transparent;
+  opacity: 0;
+  transform: translateY(-100%);
+  pointer-events: none;
+  transition:
+    opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.4s linear;
+}
+
+.site-header.is-bare.is-visible {
+  opacity: 1;
+  transform: none;
+  border-bottom-color: var(--line);
+  pointer-events: auto;
+}
+
+.site-mark {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: inherit;
+  text-decoration: none;
+  flex: none;
+}
+
+/* Emplacement d'arrivée de l'avatar du hero : il garde sa place même vide. */
+.site-mark-avatar {
+  display: block;
+  width: var(--header-avatar);
+  height: var(--header-avatar);
+  border-radius: 50%;
+  overflow: hidden;
+  flex: none;
+}
+
+/* Accueil : la place est tenue mais l'avatar reste invisible, c'est celui du
+   hero qui vient s'y caler. `visibility` préserve la géométrie mesurée. */
+.site-mark-avatar.is-ghost > * {
+  visibility: hidden;
+}
+
+.site-mark-name {
+  font-family: var(--font-label);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-size: 1.15rem;
+}
+
+.site-nav {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.site-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.site-nav ul {
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 1.6vw, 26px);
+  list-style: none;
+}
+
+.site-nav a {
+  display: block;
+  padding: 0.3rem 0;
+  color: var(--ink);
+  text-decoration: none;
+  white-space: nowrap;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  border-bottom: 2px solid transparent;
+}
+
+.site-nav a:hover {
+  border-bottom-color: var(--line);
+}
+
+.site-nav a[aria-current="page"] {
+  color: var(--blue);
+  border-bottom-color: var(--blue);
+}
+
+.site-nav a:focus-visible,
+.site-mark:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 4px;
+}
+
+/* ---------- Page catégorie ---------- */
+
+.page-head {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(38px, 7vw, 96px) 0 clamp(38px, 6vw, 84px);
+}
+
+.page-head-inner,
+.page-body-inner {
+  max-width: 1180px;
+  margin-inline: auto;
+  padding-inline: clamp(20px, 5vw, 60px);
+}
+
+.page-head-inner {
+  position: relative;
+}
+
+.page-eyebrow {
+  font-family: var(--font-label);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.page-title {
+  margin-top: 0.5rem;
+  font-weight: 800;
+  letter-spacing: -0.038em;
+  line-height: 0.94;
+  font-size: clamp(2.4rem, 8vw, 5.5rem);
+  text-wrap: balance;
+}
+
+.page-intro {
+  margin-top: clamp(14px, 2vw, 22px);
+  max-width: 46ch;
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
+  line-height: 1.45;
+  opacity: 0.86;
+}
+
+.page-glyph {
+  position: absolute;
+  right: clamp(20px, 5vw, 60px);
+  top: 50%;
+  translate: 0 -50%;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.page-glyph svg {
+  display: block;
+  width: clamp(90px, 13vw, 190px);
+  height: auto;
+}
+
+.page-specimen {
+  font-family: var(--font-label);
+  font-weight: 800;
+  line-height: 1;
+  font-size: clamp(5rem, 11vw, 11rem);
+}
+
+.page-head-logo { background: var(--logo-bg); color: var(--logo-fg); }
+.page-head-typo { background: var(--typo-bg); color: var(--typo-fg); }
+.page-head-color { background: var(--color-bg); color: var(--color-fg); }
+.page-head-inspi { background: var(--inspi-bg); color: var(--inspi-fg); }
+.page-head-icono { background: var(--icono-bg); color: var(--icono-fg); }
+
+/* ---------- Liste d'outils ---------- */
+
+.page-body {
+  padding: clamp(34px, 5vw, 70px) 0 clamp(50px, 7vw, 100px);
+}
+
+.tools-heading {
+  font-family: var(--font-label);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.tools {
+  margin-top: clamp(18px, 2.5vw, 30px);
+  display: grid;
+  gap: clamp(14px, 1.6vw, 22px);
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  list-style: none;
+}
+
+.tool-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  height: 100%;
+  padding: clamp(20px, 2vw, 28px);
+  border: 1px solid var(--line);
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+.tool-link:hover {
+  border-color: var(--ink);
+  background: #fafbff;
+}
+
+.tool-link:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.tool-name {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--font-label);
+  font-weight: 700;
+  letter-spacing: -0.018em;
+  font-size: 1.3rem;
+}
+
+.tool-badge {
+  padding: 0.14em 0.5em;
+  border: 1px solid currentColor;
+  color: var(--blue);
+  font-family: var(--font-display);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.tool-summary {
+  flex: 1;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  opacity: 0.82;
+}
+
+.tool-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.tool-tags {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  list-style: none;
+}
+
+.tool-tags li {
+  padding: 0.2em 0.55em;
+  background: var(--neutral-bg);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.tool-host {
+  font-size: 0.78rem;
+  opacity: 0.55;
+}
+
+.empty {
+  margin-top: clamp(18px, 2.5vw, 30px);
+  padding: clamp(24px, 4vw, 44px);
+  border: 1px dashed var(--line);
+  max-width: 62ch;
+}
+
+.empty p {
+  line-height: 1.55;
+}
+
+.empty code {
+  padding: 0.1em 0.35em;
+  background: var(--neutral-bg);
+  font-size: 0.9em;
+}
+
+.empty-hint {
+  margin-top: 0.8rem;
+  font-size: 0.92rem;
+  opacity: 0.7;
+}
+
+.page-back {
+  margin-top: clamp(30px, 4vw, 52px);
+}
+
+.page-back a {
+  color: var(--blue);
+  font-weight: 600;
+  text-underline-offset: 4px;
+}
+
+/* ---------- Pied de page ---------- */
+
+.site-footer {
+  background: var(--ink);
+  color: var(--paper);
+  padding: clamp(38px, 6vw, 72px) 0;
+}
+
+.site-footer-inner {
+  max-width: 1180px;
+  margin-inline: auto;
+  padding-inline: clamp(20px, 5vw, 60px);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.site-footer-name {
+  font-family: var(--font-label);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-size: 1.6rem;
+}
+
+.site-footer-tag {
+  opacity: 0.68;
+}
+
+.site-footer nav ul {
+  margin-top: clamp(16px, 2.5vw, 26px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.4rem;
+  list-style: none;
+}
+
+.site-footer nav a {
+  color: var(--paper);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.28);
+}
+
+.site-footer nav a:hover {
+  border-bottom-color: var(--paper);
+}
+
+.site-footer nav a:focus-visible {
+  outline: 3px solid var(--paper);
+  outline-offset: 4px;
+}
+
+.site-footer-legal {
+  margin-top: clamp(18px, 3vw, 32px);
+  font-size: 0.85rem;
+  opacity: 0.5;
+}

@@ -1,25 +1,25 @@
-import { motion } from "framer-motion";
+import { motion, MotionConfig } from "framer-motion";
 import Avatar from "./Avatar.jsx";
 import { Asterisk, Dots, DShapes, Gear } from "./glyphs.jsx";
+import { CATEGORIES } from "../data/site.js";
 
-const TILES = [
-  { id: "logo", label: "Logo", glyph: <Asterisk />, hover: { rotate: 22.5, scale: 1.08 } },
-  {
-    id: "typo",
-    label: "Typographie",
-    glyph: <span className="specimen">Aa</span>,
-    hover: { rotate: -5, scale: 1.12 },
-  },
-  { id: "color", label: "Color", glyph: <Dots />, hover: { scale: 1.12 } },
-  { id: "inspi", label: "Inspi", glyph: <DShapes />, hover: { x: 12 } },
-  {
-    id: "avatar",
-    label: null,
-    glyph: <Avatar size="100%" title="Avatar Labo" />,
-    hover: { rotate: -8, scale: 1.06 },
-  },
-  { id: "icono", label: "Iconography", glyph: <Gear />, hover: { rotate: 60 } },
-];
+const GLYPHS = {
+  asterisk: <Asterisk />,
+  dots: <Dots />,
+  dshapes: <DShapes />,
+  gear: <Gear />,
+  specimen: <span className="specimen">Aa</span>,
+};
+
+// Mouvement propre à chaque tuile au survol : la grille reste lisible mais
+// chaque case réagit à sa manière.
+const HOVER = {
+  logo: { rotate: 22.5, scale: 1.08 },
+  typo: { rotate: -5, scale: 1.12 },
+  color: { scale: 1.12 },
+  inspi: { x: 12 },
+  icono: { rotate: 60 },
+};
 
 const tileVariants = {
   hidden: { opacity: 0, y: 26 },
@@ -30,30 +30,63 @@ const tileVariants = {
   }),
 };
 
+function countLabel(n) {
+  if (n === 0) return "À remplir";
+  return `${n} outil${n > 1 ? "s" : ""}`;
+}
+
 export default function BentoGrid() {
   return (
-    <section className="bento" aria-label="Ressources de marque">
-      {TILES.map((t, i) => (
-        <motion.article
-          key={t.id}
-          custom={i}
-          className={`tile tile-${t.id}`}
+    <MotionConfig reducedMotion="user">
+      <nav className="bento" aria-label="Catégories du labo">
+        {CATEGORIES.map((c, i) => (
+          <motion.a
+            key={c.slug}
+            href={`/${c.slug}`}
+            custom={i}
+            className={`tile tile-${c.accent}`}
+            variants={tileVariants}
+            initial="hidden"
+            whileInView="show"
+            whileHover="hover"
+            whileFocus="hover"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            <span className="tile-head">
+              <h2>{c.label}</h2>
+              <span className="tile-count">{countLabel(c.tools.length)}</span>
+            </span>
+
+            <motion.span
+              className="glyph"
+              variants={{ hover: HOVER[c.accent] }}
+              transition={{ type: "spring", stiffness: 260, damping: 18 }}
+            >
+              {GLYPHS[c.glyph]}
+            </motion.span>
+          </motion.a>
+        ))}
+
+        {/* Case portrait : décorative, elle n'ouvre aucune page. */}
+        <motion.div
+          className="tile tile-avatar"
+          custom={CATEGORIES.length}
           variants={tileVariants}
           initial="hidden"
           whileInView="show"
           whileHover="hover"
           viewport={{ once: true, amount: 0.2 }}
+          aria-hidden="true"
         >
-          {t.label && <h2>{t.label}</h2>}
-          <motion.div
+          <motion.span
             className="glyph"
-            variants={{ hover: t.hover }}
+            variants={{ hover: { rotate: -8, scale: 1.06 } }}
             transition={{ type: "spring", stiffness: 260, damping: 18 }}
           >
-            {t.glyph}
-          </motion.div>
-        </motion.article>
-      ))}
-    </section>
+            <Avatar size="100%" title="" />
+          </motion.span>
+        </motion.div>
+      </nav>
+    </MotionConfig>
   );
 }

@@ -1,0 +1,98 @@
+---
+import "@fontsource-variable/inter-tight";
+import "@fontsource-variable/bricolage-grotesque";
+import "../styles/site.css";
+import SiteHeader from "../components/SiteHeader.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import { SITE } from "../data/site.js";
+
+const { title, description = SITE.description, bare = false } = Astro.props;
+
+const pageTitle = title ? `${title} — ${SITE.name}` : `${SITE.name} — ${SITE.tagline}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <noscript>
+      <style>
+        /* Framer Motion sérialise ses états de départ (opacity:0) dans le HTML :
+           sans JS rien ne les rejoue. On rétablit l'état final, et l'avatar de
+           l'en-tête remplace celui du hero, qui a besoin de JS pour se placer. */
+        .hero-word,
+        .hero-title-wrap,
+        .hero-hint,
+        .tile {
+          opacity: 1 !important;
+          transform: none !important;
+        }
+
+        .line {
+          transform: none !important;
+        }
+
+        .hero-avatar {
+          display: none !important;
+        }
+
+        .site-mark-avatar.is-ghost > * {
+          visibility: visible !important;
+        }
+
+        .site-header.is-bare {
+          position: sticky !important;
+          opacity: 1 !important;
+          transform: none !important;
+          border-bottom-color: var(--line) !important;
+          pointer-events: auto !important;
+        }
+      </style>
+    </noscript>
+
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%230d24fb'/></svg>"
+    />
+  </head>
+
+  <body>
+    <a class="skip-link" href="#contenu">Aller au contenu</a>
+    <SiteHeader bare={bare} />
+    <main id="contenu">
+      <slot />
+    </main>
+    <SiteFooter />
+
+    <script>
+      // Sur l'accueil, l'en-tête reste effacé tant que le hero occupe l'écran :
+      // c'est l'avatar du hero qui tient ce rôle jusqu'à ce qu'il vienne s'y caler.
+      const header = document.querySelector("[data-site-header]");
+
+      if (header?.classList.contains("is-bare")) {
+        const sync = () => {
+          header.classList.toggle(
+            "is-visible",
+            window.scrollY > window.innerHeight * 0.55,
+          );
+        };
+        sync();
+        addEventListener("scroll", sync, { passive: true });
+        addEventListener("resize", sync, { passive: true });
+      }
+    </script>
+  </body>
+</html>

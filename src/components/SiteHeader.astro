@@ -1,0 +1,39 @@
+---
+import Avatar from "./Avatar.jsx";
+import { CATEGORIES, SITE } from "../data/site.js";
+
+const { bare = false } = Astro.props;
+const path = Astro.url.pathname.replace(/\/$/, "");
+---
+
+<header class:list={["site-header", { "is-bare": bare }]} data-site-header>
+  <a class="site-mark" href="/">
+    {/* L'avatar est toujours rendu, mais masqué sur l'accueil : c'est celui
+        du hero qui vient occuper cet emplacement au scroll. Il réapparaît
+        sans JS, quand le hero ne peut pas jouer ce rôle. */}
+    <span
+      class:list={["site-mark-avatar", { "is-ghost": bare }]}
+      data-dock-slot
+    >
+      <Avatar size="100%" title="" />
+    </span>
+    <span class="site-mark-name">{SITE.name}</span>
+  </a>
+
+  <nav class="site-nav" aria-label="Catégories">
+    <ul>
+      {
+        CATEGORIES.map((c) => (
+          <li>
+            <a
+              href={`/${c.slug}`}
+              aria-current={path === `/${c.slug}` ? "page" : undefined}
+            >
+              {c.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+</header>

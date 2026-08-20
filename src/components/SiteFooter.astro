@@ -1,0 +1,20 @@
+---
+import { CATEGORIES, SITE } from "../data/site.js";
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <p class="site-footer-name">{SITE.name}</p>
+    <p class="site-footer-tag">{SITE.tagline}</p>
+
+    <nav aria-label="Pied de page">
+      <ul>
+        {CATEGORIES.map((c) => <li><a href={`/${c.slug}`}>{c.label}</a></li>)}
+      </ul>
+    </nav>
+
+    <p class="site-footer-legal">© {year}</p>
+  </div>
+</footer>

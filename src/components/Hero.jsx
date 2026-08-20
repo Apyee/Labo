@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 import {
   AnimatePresence,
   motion,
+  MotionConfig,
   useMotionValueEvent,
   useReducedMotion,
   useScroll,
@@ -112,11 +113,10 @@ const variants = {
  * Composant
  * ------------------------------------------------------------------ */
 
-// Taille de l'avatar une fois calé en haut de page, et sa marge au bord.
-const DOCK_SIZE = 44;
-const DOCK_SIZE_SM = 34;
-const DOCK_PAD = 20;
-const DOCK_PAD_SM = 14;
+// Repli si le hero est utilisé hors du site (pas d'en-tête dans la page) :
+// sinon la cible de l'avatar est l'emplacement réel dans la barre de nav.
+const FALLBACK_DOCK = { top: 20, left: 20, size: 44 };
+const FALLBACK_DOCK_SM = { top: 14, left: 14, size: 34 };
 
 export default function Hero() {
   const sectionRef = useRef(null);
@@ -124,9 +124,12 @@ export default function Hero() {
   const reduced = useReducedMotion();
 
   const [imgOk, setImgOk] = useState(true);
+  const imgRef = useRef(null);
   const [scrolled, setScrolled] = useState(false);
   // Position de repos de l'avatar, mesurée sur son ancre dans la grille.
   const [rest, setRest] = useState({ top: 0, left: 0, size: 80 });
+  // Position d'arrivée : l'emplacement que lui réserve la barre de nav.
+  const [dock, setDock] = useState(null);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -146,6 +149,16 @@ export default function Hero() {
         left: r.left + window.scrollX,
         size: r.width,
       });
+
+      // `offsetTop`/`offsetLeft` sont relatifs à l'en-tête et insensibles à sa
+      // transformation d'apparition : ils donnent la place au repos, celle que
+      // l'emplacement occupera une fois la barre visible.
+      const slot = document.querySelector("[data-dock-slot]");
+      setDock(
+        slot
+          ? { top: slot.offsetTop, left: slot.offsetLeft, size: slot.offsetWidth }
+          : null,
+      );
     };
 
     measure();
@@ -153,11 +166,17 @@ export default function Hero() {
     return () => window.removeEventListener("resize", measure);
   }, []);
 
+  // Le HTML est pré-rendu : l'image peut avoir échoué avant l'hydratation, et
+  // l'événement `error` ne se rejoue pas. On relit donc son état au montage.
+  useLayoutEffect(() => {
+    const img = imgRef.current;
+    if (img?.complete && img.naturalWidth === 0) setImgOk(false);
+  }, []);
+
   useMotionValueEvent(scrollYProgress, "change", (v) => setScrolled(v > 0.01));
 
-  const small = rest.size <= 72;
-  const dockSize = small ? DOCK_SIZE_SM : DOCK_SIZE;
-  const dockPad = small ? DOCK_PAD_SM : DOCK_PAD;
+  const target =
+    dock ?? (rest.size <= 72 ? FALLBACK_DOCK_SM : FALLBACK_DOCK);
 
   // Trajet repos → position calée en haut à gauche. `transformOrigin: top left`
   // pour que l'échelle ne décale pas la translation.
@@ -167,12 +186,12 @@ export default function Hero() {
     restDelta: 0.001,
   });
 
-  const avatarX = useTransform(progress, [0, 1], [0, dockPad - rest.left]);
-  const avatarY = useTransform(progress, [0, 1], [0, dockPad - rest.top]);
+  const avatarX = useTransform(progress, [0, 1], [0, target.left - rest.left]);
+  const avatarY = useTransform(progress, [0, 1], [0, target.top - rest.top]);
   const avatarScale = useTransform(
     progress,
     [0, 1],
-    [1, dockSize / (rest.size || 1)],
+    [1, target.size / (rest.size || 1)],
   );
 
   // Parallaxe + estompage du texte.
@@ -185,6 +204,7 @@ export default function Hero() {
   const still = { x: 0, y: 0, scale: 1 }; // fallback prefers-reduced-motion
 
   return (
+    <MotionConfig reducedMotion="user">
     <section className="hero" ref={sectionRef}>
       <div className="hero-lines" aria-hidden="true">
         {LINES.map((l, i) => {
@@ -315,6 +335,7 @@ export default function Hero() {
         >
           {imgOk ? (
             <img
+              ref={imgRef}
               src="/Profil.png"
               alt="Portrait — Labo"
               className="hero-avatar-img"
@@ -326,5 +347,6 @@ export default function Hero() {
         </motion.div>
       </motion.div>
     </section>
+    </MotionConfig>
   );
 }
